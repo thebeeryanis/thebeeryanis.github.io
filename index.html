@@ -78,125 +78,205 @@
   <p>© 2026 Beeryanis</p>
 </footer>
 
-<!-- GAME SCRIPT (FIXED + CLEAN) -->
 <script>
-document.addEventListener("DOMContentLoaded", () => {
+  // Check if game is already completed
+  let hasCompletedGame = localStorage.getItem('beeryanisGameCompleted') === 'true';
 
-  const canvas = document.getElementById("gameCanvas");
-  const ctx = canvas.getContext("2d");
+  document.addEventListener("DOMContentLoaded", () => {
+    // Hide website if game not completed
+    if (!hasCompletedGame) {
+      document.querySelector("header").style.display = "none";
+      document.querySelector("main").style.display = "none";
+      document.querySelector("footer").style.display = "none";
+      
+      // Show game screen and start game
+      const canvas = document.getElementById("gameCanvas");
+      const ctx = canvas.getContext("2d");
 
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
 
-  const note = {
-    x: 80,
-    y: canvas.height - 100,
-    width: 30,
-    height: 30,
-    velocity: 0,
-    jump: -12,
-    grounded: true
-  };
+      const note = {
+        x: 80,
+        y: canvas.height - 100,
+        width: 30,
+        height: 30,
+        velocity: 0,
+        jump: -12,
+        grounded: true
+      };
 
-  const gravity = 0.6;
-  let obstacles = [];
-  let points = [];
-  let score = 0;
-  let gameOver = false;
-  const targetScore = 5;
+      const gravity = 0.6;
+      let obstacles = [];
+      let points = [];
+      let score = 0;
+      let gameOver = false;
+      const targetScore = 5;
 
-  function jump() {
-    if (note.grounded && !gameOver) {
-      note.velocity = note.jump;
-      note.grounded = false;
-    }
-  }
-
-  document.addEventListener("keydown", e => {
-    if (e.code === "Space") jump();
-    if (e.key === "r") location.reload();
-  });
-
-  document.addEventListener("touchstart", jump);
-
-  function drawNote() {
-    ctx.fillStyle = "#ff8c42";
-    ctx.fillRect(note.x, note.y, note.width, note.height);
-  }
-
-  function drawOb(o) {
-    ctx.fillStyle = "#e63946";
-    ctx.fillRect(o.x, o.y, 30, 30);
-  }
-
-  function drawPt(p) {
-    ctx.fillStyle = "#2d9d4d";
-    ctx.fillRect(p.x, p.y, 20, 20);
-  }
-
-  function collision(a, b) {
-    return a.x < b.x + 30 &&
-           a.x + a.width > b.x &&
-           a.y < b.y + 30 &&
-           a.y + a.height > b.y;
-  }
-
-  function loop() {
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // gravity
-    note.velocity += gravity;
-    note.y += note.velocity;
-
-    if (note.y >= canvas.height - 60) {
-      note.y = canvas.height - 60;
-      note.velocity = 0;
-      note.grounded = true;
-    }
-
-    // spawn
-    if (Math.random() < 0.02) {
-      obstacles.push({ x: canvas.width, y: canvas.height - 60 });
-    }
-
-    if (Math.random() < 0.015) {
-      points.push({ x: canvas.width, y: canvas.height - 120 });
-    }
-
-    // update obstacles
-    obstacles.forEach(o => o.x -= 4);
-    points.forEach(p => p.x -= 4);
-
-    // draw
-    drawNote();
-    obstacles.forEach(drawOb);
-    points.forEach(drawPt);
-
-    // collisions
-    obstacles.forEach(o => {
-      if (collision(note, o)) gameOver = true;
-    });
-
-    points.forEach((p, i) => {
-      if (collision(note, p)) {
-        score++;
-        points.splice(i, 1);
-        document.getElementById("score-text").innerText = score;
+      function jump() {
+        if (note.grounded && !gameOver) {
+          note.velocity = note.jump;
+          note.grounded = false;
+        }
       }
-    });
 
-    if (score >= targetScore) {
+      document.addEventListener("keydown", e => {
+        if (e.code === "Space") {
+          e.preventDefault();
+          jump();
+        }
+        if (e.key === "r" && gameOver) {
+          location.reload();
+        }
+      });
+
+      document.addEventListener("touchstart", jump);
+
+      function drawNote() {
+        ctx.fillStyle = "#ff8c42";
+        ctx.fillRect(note.x, note.y, note.width, note.height);
+        ctx.fillStyle = "#2d9d4d";
+        ctx.fillRect(note.x + 5, note.y, 5, 15);
+      }
+
+      function drawOb(o) {
+        ctx.fillStyle = "#e63946";
+        ctx.font = "40px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("♫", o.x + 15, o.y + 15);
+      }
+
+      function drawPt(p) {
+        ctx.fillStyle = "#2d9d4d";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("♪", p.x + 10, p.y + 10);
+      }
+
+      function collision(a, b) {
+        return a.x < b.x + 30 &&
+               a.x + a.width > b.x &&
+               a.y < b.y + 30 &&
+               a.y + a.height > b.y;
+      }
+
+      function loop() {
+        ctx.fillStyle = "rgba(26, 31, 58, 0.8)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // gravity
+        note.velocity += gravity;
+        note.y += note.velocity;
+
+        if (note.y >= canvas.height - 60) {
+          note.y = canvas.height - 60;
+          note.velocity = 0;
+          note.grounded = true;
+        }
+
+        // spawn
+        if (Math.random() < 0.02) {
+          obstacles.push({ x: canvas.width, y: canvas.height - 60 });
+        }
+
+        if (Math.random() < 0.015) {
+          points.push({ x: canvas.width, y: canvas.height - 120 });
+        }
+
+        // update obstacles
+        obstacles = obstacles.filter(o => {
+          o.x -= 4;
+          return o.x > 0;
+        });
+        
+        points = points.filter(p => {
+          p.x -= 4;
+          return p.x > 0;
+        });
+
+        // draw
+        drawNote();
+        obstacles.forEach(drawOb);
+        points.forEach(drawPt);
+
+        // collisions
+        obstacles.forEach(o => {
+          if (collision(note, o)) gameOver = true;
+        });
+
+        points.forEach((p, i) => {
+          if (collision(note, p)) {
+            score++;
+            points.splice(i, 1);
+            document.getElementById("score-text").innerText = score;
+            
+            // Update score dots
+            const dots = document.querySelectorAll(".score-point");
+            dots.forEach((dot, index) => {
+              if (index < score) {
+                dot.style.background = "#ff8c42";
+              }
+            });
+          }
+        });
+
+        if (score >= targetScore) {
+          // Game won - unlock site
+          localStorage.setItem("beeryanisGameCompleted", "true");
+          document.querySelector(".game-screen").style.display = "none";
+          document.querySelector("header").style.display = "block";
+          document.querySelector("main").style.display = "block";
+          document.querySelector("footer").style.display = "block";
+          return;
+        }
+
+        if (!gameOver) {
+          requestAnimationFrame(loop);
+        }
+      }
+
+      loop();
+    } else {
+      // Game already completed - hide game screen and show website
       document.querySelector(".game-screen").style.display = "none";
-      localStorage.setItem("beeryanisGameCompleted", "true");
+      document.querySelector("header").style.display = "block";
+      document.querySelector("main").style.display = "block";
+      document.querySelector("footer").style.display = "block";
     }
 
-    if (!gameOver) requestAnimationFrame(loop);
-  }
-
-  loop();
-
-});
+    // Logo modal (always available after game)
+    if (hasCompletedGame) {
+      const logo = document.querySelector(".logo");
+      const modal = document.querySelector(".logo-modal");
+      
+      if (logo && modal) {
+        const modalImg = document.querySelector(".logo-modal-img");
+        const closeBtn = document.querySelector(".logo-modal-close");
+        
+        logo.addEventListener("click", function() {
+          modalImg.src = this.src;
+          modal.style.display = "flex";
+          document.body.style.overflow = "hidden";
+        });
+        
+        closeBtn.addEventListener("click", function() {
+          modal.style.display = "none";
+          document.body.style.overflow = "auto";
+        });
+        
+        modal.addEventListener("click", function(e) {
+          if (e.target === modal) {
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+          }
+        });
+        
+        logo.style.cursor = "pointer";
+      }
+    }
+  });
 </script>
 
 </body>
