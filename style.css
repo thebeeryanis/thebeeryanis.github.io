@@ -13,6 +13,8 @@
 }
 
 body {
+  display: flex;
+  flex-direction: column;
   font-family: 'Segoe UI', Trebuchet MS, sans-serif;
   background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
   background-attachment: fixed;
@@ -22,6 +24,10 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+}
+
+main {
+  flex: 1;
 }
 
 body::before {
