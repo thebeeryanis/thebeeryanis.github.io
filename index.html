@@ -130,9 +130,9 @@
         }
       });
 
-      document.addEventListener("touchstart", () => {
+      document.addEventListener("pointerdown", () => {
         if (gameOver) {
-          // Restart game on tap when failed
+          // Restart game on click or tap when failed
           location.reload();
         } else {
           jump();
