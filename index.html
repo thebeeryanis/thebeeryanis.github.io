@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beeryanis</title>
+  <title>Beeryanis Band Official Website</title>
   <meta name="description" content="Beeryanis – Divorced Dadrock band. Listen to our latest music and see upcoming shows.">
   <link rel="stylesheet" href="style.css">
   <style>
@@ -124,141 +124,191 @@
   </script>
   
   <script>
-    // Game Logic
-    let gameUnlocked = localStorage.getItem('beeryanisSiteUnlocked') === 'true';
-    
-    if (gameUnlocked) {
-      document.addEventListener('DOMContentLoaded', function() {
-        const gameScreen = document.querySelector('.game-screen');
-        if (gameScreen) gameScreen.classList.add('hidden');
+    // Game Logic - Always play on every visit
+    document.addEventListener('DOMContentLoaded', function() {
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Set canvas size
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      
+      // Game variables
+      const note = {
+        x: 80,
+        y: canvas.height - 100,
+        width: 30,
+        height: 40,
+        velocity: 0,
+        jumpPower: -15,
+        grounded: true,
+        color: '#ff8c42'
+      };
+
+      const gravity = 0.6;
+      let obstacles = [];
+      let points = [];
+      let score = 0;
+      let gameActive = true;
+      const targetScore = 5;
+      let gameOver = false;
+      
+      // Keyboard input
+      const keys = {};
+      window.addEventListener('keydown', (e) => {
+        keys[e.key] = true;
+        if ((e.key === ' ' || e.key === 'ArrowUp') && note.grounded && gameActive && !gameOver) {
+          note.velocity = note.jumpPower;
+          note.grounded = false;
+        }
+        if (e.key === 'r' && gameOver) {
+          resetGame();
+        }
       });
-    } else {
-      document.addEventListener('DOMContentLoaded', function() {
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Set canvas size
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        
-        // Game variables
-        const note = {
-          x: 80,
-          y: canvas.height - 100,
+      window.addEventListener('keyup', (e) => {
+        keys[e.key] = false;
+      });
+
+      // Mobile touch support
+      document.addEventListener('touchstart', (e) => {
+        if (note.grounded && gameActive && !gameOver) {
+          note.velocity = note.jumpPower;
+          note.grounded = false;
+        }
+      });
+
+      function drawNote() {
+        ctx.fillStyle = note.color;
+        // Draw music note
+        ctx.fillRect(note.x + 10, note.y, 5, 25);
+        ctx.beginPath();
+        ctx.ellipse(note.x + 12, note.y + 28, 8, 6, 0.3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawObstacle(obstacle) {
+        ctx.fillStyle = '#e63946';
+        ctx.font = '40px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('♫', obstacle.x + 15, obstacle.y + 15);
+      }
+
+      function drawPoint(point) {
+        ctx.fillStyle = '#2d9d4d';
+        ctx.font = '30px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('♪', point.x + 15, point.y + 15);
+      }
+
+      function drawGround() {
+        ctx.fillStyle = 'rgba(45, 157, 77, 0.3)';
+        ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
+        ctx.strokeStyle = '#2d9d4d';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, canvas.height - 60, canvas.width, 60);
+      }
+
+      function createObstacle() {
+        obstacles.push({
+          x: canvas.width,
+          y: canvas.height - 105,
           width: 30,
-          height: 40,
-          velocity: 0,
-          jumpPower: -15,
-          grounded: true,
-          color: '#ff8c42'
-        };
+          height: 30,
+          speed: 6
+        });
+      }
 
-        const gravity = 0.6;
-        let obstacles = [];
-        let score = 0;
-        let gameActive = true;
-        const targetScore = 5;
+      function createPoint() {
+        points.push({
+          x: canvas.width,
+          y: canvas.height - 140, // Higher position requires jumping
+          width: 30,
+          height: 30,
+          speed: 6
+        });
+      }
+
+      function checkCollision(rect1, rect2) {
+        return rect1.x < rect2.x + rect2.width &&
+               rect1.x + rect1.width > rect2.x &&
+               rect1.y < rect2.y + rect2.height &&
+               rect1.y + rect1.height > rect2.y;
+      }
+
+      function unlockSite() {
+        const gameScreen = document.querySelector('.game-screen');
+        gameScreen.classList.add('hidden');
+        gameActive = false;
+      }
+
+      function gameOverScreen() {
+        gameOver = true;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Keyboard input
-        const keys = {};
-        window.addEventListener('keydown', (e) => {
-          keys[e.key] = true;
-          if ((e.key === ' ' || e.key === 'ArrowUp') && note.grounded && gameActive) {
-            note.velocity = note.jumpPower;
-            note.grounded = false;
+        ctx.fillStyle = '#e63946';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER!', canvas.width/2, canvas.height/2 - 20);
+        
+        ctx.fillStyle = '#f5f5f5';
+        ctx.font = '16px Arial';
+        ctx.fillText('Press R to restart', canvas.width/2, canvas.height/2 + 20);
+      }
+
+      function resetGame() {
+        note.y = canvas.height - 100;
+        note.velocity = 0;
+        note.grounded = true;
+        obstacles = [];
+        points = [];
+        score = 0;
+        gameOver = false;
+        gameActive = true;
+        
+        document.querySelectorAll('.score-point').forEach(point => {
+          point.classList.remove('filled');
+        });
+        document.getElementById('score-text').textContent = '0';
+        document.querySelector('.unlock-message').style.display = 'none';
+        
+        gameLoop();
+      }
+
+      function updateScore() {
+        document.querySelectorAll('.score-point').forEach((point, index) => {
+          if (index < score) {
+            point.classList.add('filled');
           }
         });
-        window.addEventListener('keyup', (e) => {
-          keys[e.key] = false;
-        });
 
-        // Mobile touch support
-        document.addEventListener('touchstart', (e) => {
-          if (note.grounded && gameActive) {
-            note.velocity = note.jumpPower;
-            note.grounded = false;
-          }
-        });
+        document.getElementById('score-text').textContent = score;
 
-        function drawNote() {
-          ctx.fillStyle = note.color;
-          // Draw music note
-          ctx.fillRect(note.x + 10, note.y, 5, 25);
-          ctx.beginPath();
-          ctx.ellipse(note.x + 12, note.y + 28, 8, 6, 0.3, 0, Math.PI * 2);
-          ctx.fill();
+        if (score >= targetScore) {
+          unlockSite();
+          document.querySelector('.unlock-message').style.display = 'block';
+        }
+      }
+
+      let obstacleTimer = 0;
+      let pointTimer = 0;
+
+      function gameLoop() {
+        // Clear canvas
+        ctx.fillStyle = 'rgba(26, 31, 58, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw background symbols
+        ctx.fillStyle = 'rgba(45, 157, 77, 0.1)';
+        ctx.font = '30px Arial';
+        ctx.textAlign = 'center';
+        for (let i = 0; i < 10; i++) {
+          ctx.fillText('♪', (i * 100) + 50, 50);
         }
 
-        function drawObstacle(obstacle) {
-          ctx.fillStyle = '#2d9d4d';
-          ctx.font = '40px Arial';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('𝄽', obstacle.x + 15, obstacle.y + 15);
-        }
-
-        function drawGround() {
-          ctx.fillStyle = 'rgba(45, 157, 77, 0.3)';
-          ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
-          ctx.strokeStyle = '#2d9d4d';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(0, canvas.height - 60, canvas.width, 60);
-        }
-
-        function createObstacle() {
-          obstacles.push({
-            x: canvas.width,
-            y: canvas.height - 105,
-            width: 30,
-            height: 30,
-            speed: 6
-          });
-        }
-
-        function checkCollision(rect1, rect2) {
-          return rect1.x < rect2.x + rect2.width &&
-                 rect1.x + rect1.width > rect2.x &&
-                 rect1.y < rect2.y + rect2.height &&
-                 rect1.y + rect1.height > rect2.y;
-        }
-
-        function unlockSite() {
-          localStorage.setItem('beeryanisSiteUnlocked', 'true');
-          const gameScreen = document.querySelector('.game-screen');
-          gameScreen.classList.add('hidden');
-          gameActive = false;
-        }
-
-        function updateScore() {
-          document.querySelectorAll('.score-point').forEach((point, index) => {
-            if (index < score) {
-              point.classList.add('filled');
-            }
-          });
-
-          document.getElementById('score-text').textContent = score;
-
-          if (score >= targetScore) {
-            unlockSite();
-            document.querySelector('.unlock-message').style.display = 'block';
-          }
-        }
-
-        let obstacleTimer = 0;
-
-        function gameLoop() {
-          // Clear canvas
-          ctx.fillStyle = 'rgba(26, 31, 58, 0.8)';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-          // Draw background symbols
-          ctx.fillStyle = 'rgba(45, 157, 77, 0.1)';
-          ctx.font = '30px Arial';
-          ctx.textAlign = 'center';
-          for (let i = 0; i < 10; i++) {
-            ctx.fillText('♪', (i * 100) + 50, 50);
-          }
-
+        if (!gameOver) {
           // Update note
           note.velocity += gravity;
           note.y += note.velocity;
@@ -271,11 +321,18 @@
             note.grounded = false;
           }
 
-          // Create obstacles
+          // Create obstacles and points
           obstacleTimer++;
-          if (obstacleTimer > 60 && gameActive) {
+          pointTimer++;
+          
+          if (obstacleTimer > 80 && gameActive) {
             createObstacle();
             obstacleTimer = 0;
+          }
+          
+          if (pointTimer > 120 && gameActive) {
+            createPoint();
+            pointTimer = 0;
           }
 
           // Update obstacles
@@ -284,28 +341,44 @@
             return obs.x + obs.width > 0;
           });
 
-          // Check collisions
-          obstacles.forEach((obs, index) => {
+          // Update points
+          points = points.filter(pt => {
+            pt.x -= pt.speed;
+            return pt.x + pt.width > 0;
+          });
+
+          // Check obstacle collisions (game over)
+          obstacles.forEach((obs) => {
             if (checkCollision(note, obs)) {
-              score++;
-              updateScore();
-              obstacles.splice(index, 1);
+              gameOverScreen();
             }
           });
 
-          // Draw everything
-          drawGround();
-          drawNote();
-          obstacles.forEach(drawObstacle);
-
-          if (gameActive) {
-            requestAnimationFrame(gameLoop);
-          }
+          // Check point collisions (score increase)
+          points.forEach((pt, index) => {
+            if (checkCollision(note, pt)) {
+              score++;
+              updateScore();
+              points.splice(index, 1);
+            }
+          });
         }
 
-        gameLoop();
-      });
-    }
+        // Draw everything
+        drawGround();
+        drawNote();
+        obstacles.forEach(drawObstacle);
+        points.forEach(drawPoint);
+
+        if (gameOver) {
+          gameOverScreen();
+        } else if (gameActive) {
+          requestAnimationFrame(gameLoop);
+        }
+      }
+
+      gameLoop();
+    });
     
     document.addEventListener('DOMContentLoaded', function() {
       const logo = document.querySelector('.logo');
@@ -342,12 +415,12 @@
 <div class="game-screen">
   <div style="position: absolute; top: 20px; right: 20px; padding: 8px 16px; background: rgba(45, 157, 77, 0.3); border: 1px solid #2d9d4d; border-radius: 20px; font-size: 0.85rem; color: #2d9d4d; font-weight: bold;">🔐 HUMAN VERIFICATION</div>
   <div class="game-title">🎵 Beeryanis Music Challenge 🎵</div>
-  <div class="game-instructions">Catch the rest symbols with your music note!</div>
+  <div class="game-instructions">Jump to collect notes (♪) while avoiding sharp obstacles (♫)!</div>
   <div class="game-container">
     <canvas id="gameCanvas"></canvas>
   </div>
   <div class="game-info">
-    <div class="controls-text">📱 SPACEBAR or UP ARROW to JUMP | TOUCH to JUMP on mobile</div>
+    <div class="controls-text">📱 SPACEBAR or UP ARROW to JUMP | TOUCH to JUMP on mobile | Press R to restart after game over</div>
     <div class="game-score">Score: <span id="score-text">0</span>/5</div>
     <div class="score-bar">
       <div class="score-point"></div>
