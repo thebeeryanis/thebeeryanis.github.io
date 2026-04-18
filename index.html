@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Beeryanis Band Official Website</title>
+  <title>Beeryanis Band</title>
 
   <meta name="description" content="Beeryanis – Divorced Dadrock band. Listen to our latest music and see upcoming shows.">
 
@@ -24,7 +24,7 @@
 <!-- GAME SCREEN -->
 <div class="game-screen">
   <div class="game-title" style="color: #000;">🔐 Human Verification</div>
-  <div class="game-instructions">Press SPACE or click/tap to jump</div>
+  <div class="game-instructions" style="color: #000; font-weight: 700;">Press SPACE or click/tap to jump</div>
 
   <div class="game-container">
     <canvas id="gameCanvas"></canvas>
@@ -47,7 +47,7 @@
 <header>
   <div class="header-container">
     <img src="logo.png" class="logo" alt="Beeryanis Logo">
-    <h1>Beeryanis Band<br>Official Website</h1>
+    <h1>Beeryanis Band</h1>
   </div>
 
   <nav>
@@ -105,20 +105,25 @@
 
       const note = {
         x: 80,
-        y: canvas.height - 100,
-        width: 30,
-        height: 30,
+        y: canvas.height - 98,
+        width: 32,
+        height: 38,
         velocity: 0,
-        jump: -12,
+        jump: -14,
         grounded: true
       };
 
       const gravity = 0.6;
+      const minObstacleGap = 280;
       let obstacles = [];
       let points = [];
       let score = 0;
       let gameOver = false;
       const targetScore = 5;
+
+      function canSpawnObstacle() {
+        return obstacles.length === 0 || canvas.width - obstacles[obstacles.length - 1].x > minObstacleGap;
+      }
 
       function jump() {
         if (note.grounded && !gameOver) {
@@ -147,69 +152,98 @@
       });
 
       function drawNote() {
-        ctx.fillStyle = "#ff8c42";
+        ctx.fillStyle = "#111";
         ctx.fillRect(note.x, note.y, note.width, note.height);
-        ctx.fillStyle = "#2d9d4d";
-        ctx.fillRect(note.x + 5, note.y, 5, 15);
+
+        // Guitar neck and body silhouette
+        ctx.fillStyle = "#111";
+        ctx.fillRect(note.x + note.width - 8, note.y + 12, 14, 5);
+        ctx.fillRect(note.x + note.width - 4, note.y + 8, 4, 22);
+        ctx.beginPath();
+        ctx.moveTo(note.x + note.width + 8, note.y + 8);
+        ctx.lineTo(note.x + note.width + 18, note.y + 4);
+        ctx.lineTo(note.x + note.width + 18, note.y + 16);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = "#222";
+        ctx.fillRect(note.x + 6, note.y + 10, 10, 4);
       }
 
       function drawOb(o) {
-        ctx.fillStyle = "#e63946";
-        ctx.font = "40px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("♫", o.x + 15, o.y + 15);
+        ctx.fillStyle = "#111";
+        ctx.fillRect(o.x, o.y, o.width, o.height);
+        ctx.fillStyle = "#222";
+        ctx.fillRect(o.x + 6, o.y + 6, o.width - 12, o.height - 12);
+        ctx.fillStyle = "rgba(255, 140, 66, 0.85)";
+        ctx.fillRect(o.x + 6, o.y + o.height - 14, o.width - 12, 8);
       }
 
       function drawPt(p) {
         ctx.fillStyle = "#2d9d4d";
-        ctx.font = "30px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("♪", p.x + 10, p.y + 10);
+        ctx.beginPath();
+        ctx.arc(p.x + 8, p.y + 8, 8, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       function collision(a, b) {
-        return a.x < b.x + 30 &&
+        return a.x < b.x + b.width &&
                a.x + a.width > b.x &&
-               a.y < b.y + 30 &&
+               a.y < b.y + b.height &&
                a.y + a.height > b.y;
       }
 
       let bgOffset = 0;
 
       function loop() {
-        // Animated background
-        ctx.fillStyle = "rgba(26, 31, 58, 0.9)";
+        // Animated background and city silhouette
+        ctx.fillStyle = "rgba(10, 14, 30, 0.96)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw moving background pattern
-        ctx.fillStyle = "rgba(45, 157, 77, 0.1)";
-        ctx.font = "40px Arial";
-        ctx.textAlign = "center";
+        const bgColors = ["rgba(45, 157, 77, 0.16)", "rgba(255, 140, 66, 0.12)", "rgba(90, 180, 140, 0.1)"];
         for (let i = 0; i < 5; i++) {
-          ctx.fillText("♪", (bgOffset + i * 150) % canvas.width, 40);
-          ctx.fillText("♪", (bgOffset + i * 150) % canvas.width, canvas.height - 40);
+          const x = canvas.width - ((bgOffset + i * 220) % (canvas.width + 220));
+          const y = 80 + (i % 2) * 60;
+          const radius = 55 + (i * 6);
+          ctx.fillStyle = bgColors[i % bgColors.length];
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
         }
-        bgOffset = (bgOffset + 2) % (canvas.width + 150);
+
+        const skylineBase = canvas.height - 60;
+        let skylineX = -((bgOffset * 0.5) % 140);
+        const buildingHeights = [72, 48, 90, 58, 100, 40, 82, 52, 110, 66, 74, 54];
+        for (let i = 0; i < buildingHeights.length; i++) {
+          const width = 48 + (i % 3) * 12;
+          const height = buildingHeights[i];
+          ctx.fillStyle = "rgba(15, 20, 40, 1)";
+          ctx.fillRect(skylineX, skylineBase - height, width, height);
+          ctx.fillStyle = "rgba(24, 34, 62, 1)";
+          ctx.fillRect(skylineX + 6, skylineBase - height + 18, 10, 12);
+          ctx.fillRect(skylineX + 26, skylineBase - height + 26, 8, 10);
+          skylineX += width + 24;
+        }
+
+        bgOffset = (bgOffset + 2) % (canvas.width + 220);
 
         // gravity
         note.velocity += gravity;
         note.y += note.velocity;
 
-        if (note.y >= canvas.height - 60) {
-          note.y = canvas.height - 60;
+        if (note.y >= canvas.height - 60 - note.height) {
+          note.y = canvas.height - 60 - note.height;
           note.velocity = 0;
           note.grounded = true;
         }
 
         // spawn
-        if (Math.random() < 0.01) {
-          obstacles.push({ x: canvas.width, y: canvas.height - 60 });
+        if (Math.random() < 0.01 && canSpawnObstacle()) {
+          obstacles.push({ x: canvas.width, y: canvas.height - 60, width: 44, height: 44 });
         }
 
         if (Math.random() < 0.015) {
-          points.push({ x: canvas.width, y: canvas.height - 120 });
+          points.push({ x: canvas.width, y: canvas.height - 120, width: 16, height: 16 });
         }
 
         // update obstacles
