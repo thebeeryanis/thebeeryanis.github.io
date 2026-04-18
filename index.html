@@ -109,11 +109,11 @@
         width: 24,
         height: 56,
         velocity: 0,
-        jump: -10,
+        jump: -11,
         grounded: true
       };
 
-      const gravity = 0.6;
+      const gravity = 0.7;
       const minObstacleGap = 320;
       let obstacles = [];
       let points = [];
@@ -126,7 +126,7 @@
       }
 
       function jump() {
-        if (note.grounded && !gameOver) {
+        if (!gameOver && note.y >= canvas.height - 60 - note.height - 2) {
           note.velocity = note.jump;
           note.grounded = false;
         }
@@ -155,8 +155,8 @@
         const cx = note.x + note.width / 2;
         const headY = note.y + 12;
 
-        ctx.strokeStyle = "#111";
-        ctx.lineWidth = 4;
+        ctx.strokeStyle = "#f4f4f4";
+        ctx.lineWidth = 5;
         ctx.lineCap = "round";
 
         // Head
@@ -187,7 +187,7 @@
         ctx.stroke();
 
         // Guitar body
-        ctx.fillStyle = "#111";
+        ctx.fillStyle = "#f4f4f4";
         ctx.beginPath();
         ctx.ellipse(cx + 20, headY + 22, 8, 14, -0.4, 0, Math.PI * 2);
         ctx.fill();
@@ -195,12 +195,10 @@
       }
 
       function drawOb(o) {
-        ctx.fillStyle = "#111";
+        ctx.fillStyle = "#f5f5f5";
         ctx.fillRect(o.x, o.y, o.width, o.height);
-        ctx.fillStyle = "#222";
+        ctx.fillStyle = "#ccd8e4";
         ctx.fillRect(o.x + 6, o.y + 6, o.width - 12, o.height - 12);
-        ctx.fillStyle = "rgba(255, 140, 66, 0.85)";
-        ctx.fillRect(o.x + 6, o.y + o.height - 14, o.width - 12, 8);
       }
 
       function drawPt(p) {
@@ -224,11 +222,11 @@
         ctx.fillStyle = "rgba(10, 14, 30, 0.96)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        const bgColors = ["rgba(45, 157, 77, 0.15)", "rgba(255, 180, 120, 0.12)", "rgba(200, 220, 180, 0.1)"];
+        const bgColors = ["rgba(200, 230, 255, 0.35)", "rgba(220, 240, 200, 0.28)", "rgba(255, 230, 180, 0.24)"];
         for (let i = 0; i < 5; i++) {
-          const x = canvas.width - ((bgOffset + i * 320) % (canvas.width + 600));
+          const x = canvas.width - ((bgOffset + i * 420) % (canvas.width + 1200));
           const y = 80 + (i % 2) * 50;
-          const radius = 50 + (i * 8);
+          const radius = 60 + (i * 10);
           ctx.fillStyle = bgColors[i % bgColors.length];
           ctx.beginPath();
           ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -249,7 +247,7 @@
           skylineX += width + 18;
         }
 
-        bgOffset = (bgOffset + 0.8) % (canvas.width + 600);
+        bgOffset = (bgOffset + 0.35) % (canvas.width + 1200);
 
         // ground plane
         ctx.fillStyle = "rgba(25, 34, 56, 0.95)";
