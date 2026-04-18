@@ -171,7 +171,9 @@
 
       // Mobile touch support
       document.addEventListener('touchstart', (e) => {
-        if (note.grounded && gameActive && !gameOver) {
+        if (gameOver) {
+          resetGame();
+        } else if (note.grounded && gameActive) {
           note.velocity = note.jumpPower;
           note.grounded = false;
         }
@@ -414,7 +416,7 @@
 
 <div class="game-screen">
   <div style="position: absolute; top: 20px; right: 20px; padding: 8px 16px; background: rgba(45, 157, 77, 0.3); border: 1px solid #2d9d4d; border-radius: 20px; font-size: 0.85rem; color: #2d9d4d; font-weight: bold;">🔐 HUMAN VERIFICATION</div>
-  <div class="game-title">🎵 Beeryanis Music Challenge 🎵</div>
+  <div class="game-title">🔐 Human Verification</div>
   <div class="game-instructions">Jump to collect notes (♪) while avoiding sharp obstacles (♫)!</div>
   <div class="game-container">
     <canvas id="gameCanvas"></canvas>
