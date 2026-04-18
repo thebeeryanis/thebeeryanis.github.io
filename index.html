@@ -105,16 +105,16 @@
 
       const note = {
         x: 80,
-        y: canvas.height - 98,
-        width: 32,
-        height: 38,
+        y: canvas.height - 116,
+        width: 24,
+        height: 56,
         velocity: 0,
-        jump: -14,
+        jump: -10,
         grounded: true
       };
 
       const gravity = 0.6;
-      const minObstacleGap = 280;
+      const minObstacleGap = 320;
       let obstacles = [];
       let points = [];
       let score = 0;
@@ -152,22 +152,46 @@
       });
 
       function drawNote() {
-        ctx.fillStyle = "#111";
-        ctx.fillRect(note.x, note.y, note.width, note.height);
+        const cx = note.x + note.width / 2;
+        const headY = note.y + 12;
 
-        // Guitar neck and body silhouette
-        ctx.fillStyle = "#111";
-        ctx.fillRect(note.x + note.width - 8, note.y + 12, 14, 5);
-        ctx.fillRect(note.x + note.width - 4, note.y + 8, 4, 22);
+        ctx.strokeStyle = "#111";
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+
+        // Head
         ctx.beginPath();
-        ctx.moveTo(note.x + note.width + 8, note.y + 8);
-        ctx.lineTo(note.x + note.width + 18, note.y + 4);
-        ctx.lineTo(note.x + note.width + 18, note.y + 16);
-        ctx.closePath();
-        ctx.fill();
+        ctx.arc(cx, headY, 8, 0, Math.PI * 2);
+        ctx.stroke();
 
-        ctx.fillStyle = "#222";
-        ctx.fillRect(note.x + 6, note.y + 10, 10, 4);
+        // Body
+        ctx.beginPath();
+        ctx.moveTo(cx, headY + 8);
+        ctx.lineTo(cx, headY + 30);
+        ctx.stroke();
+
+        // Arms
+        ctx.beginPath();
+        ctx.moveTo(cx, headY + 16);
+        ctx.lineTo(cx - 12, headY + 26);
+        ctx.moveTo(cx, headY + 16);
+        ctx.lineTo(cx + 16, headY + 22);
+        ctx.stroke();
+
+        // Legs
+        ctx.beginPath();
+        ctx.moveTo(cx, headY + 30);
+        ctx.lineTo(cx - 10, headY + 44);
+        ctx.moveTo(cx, headY + 30);
+        ctx.lineTo(cx + 10, headY + 48);
+        ctx.stroke();
+
+        // Guitar body
+        ctx.fillStyle = "#111";
+        ctx.beginPath();
+        ctx.ellipse(cx + 20, headY + 22, 8, 14, -0.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(cx + 20, headY + 14, 4, 14);
       }
 
       function drawOb(o) {
@@ -200,11 +224,11 @@
         ctx.fillStyle = "rgba(10, 14, 30, 0.96)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        const bgColors = ["rgba(45, 157, 77, 0.16)", "rgba(255, 140, 66, 0.12)", "rgba(90, 180, 140, 0.1)"];
+        const bgColors = ["rgba(45, 157, 77, 0.15)", "rgba(255, 180, 120, 0.12)", "rgba(200, 220, 180, 0.1)"];
         for (let i = 0; i < 5; i++) {
-          const x = canvas.width - ((bgOffset + i * 220) % (canvas.width + 220));
-          const y = 80 + (i % 2) * 60;
-          const radius = 55 + (i * 6);
+          const x = canvas.width - ((bgOffset + i * 320) % (canvas.width + 600));
+          const y = 80 + (i % 2) * 50;
+          const radius = 50 + (i * 8);
           ctx.fillStyle = bgColors[i % bgColors.length];
           ctx.beginPath();
           ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -212,24 +236,41 @@
         }
 
         const skylineBase = canvas.height - 60;
-        let skylineX = -((bgOffset * 0.5) % 140);
-        const buildingHeights = [72, 48, 90, 58, 100, 40, 82, 52, 110, 66, 74, 54];
+        let skylineX = -((bgOffset * 0.25) % 180);
+        const buildingHeights = [68, 50, 84, 62, 94, 46, 88, 52, 100, 56, 72, 60];
         for (let i = 0; i < buildingHeights.length; i++) {
-          const width = 48 + (i % 3) * 12;
+          const width = 42 + (i % 3) * 10;
           const height = buildingHeights[i];
-          ctx.fillStyle = "rgba(15, 20, 40, 1)";
+          ctx.fillStyle = "rgba(18, 24, 44, 0.95)";
           ctx.fillRect(skylineX, skylineBase - height, width, height);
-          ctx.fillStyle = "rgba(24, 34, 62, 1)";
-          ctx.fillRect(skylineX + 6, skylineBase - height + 18, 10, 12);
-          ctx.fillRect(skylineX + 26, skylineBase - height + 26, 8, 10);
-          skylineX += width + 24;
+          ctx.fillStyle = "rgba(28, 38, 68, 0.9)";
+          ctx.fillRect(skylineX + 6, skylineBase - height + 16, 10, 12);
+          ctx.fillRect(skylineX + 24, skylineBase - height + 24, 8, 10);
+          skylineX += width + 18;
         }
 
-        bgOffset = (bgOffset + 2) % (canvas.width + 220);
+        bgOffset = (bgOffset + 0.8) % (canvas.width + 600);
+
+        // ground plane
+        ctx.fillStyle = "rgba(25, 34, 56, 0.95)";
+        ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+        ctx.fillRect(0, canvas.height - 62, canvas.width, 4);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height - 30);
+        ctx.lineTo(canvas.width, canvas.height - 30);
+        ctx.stroke();
 
         // gravity
         note.velocity += gravity;
         note.y += note.velocity;
+
+        if (note.y <= 40) {
+          note.y = 40;
+          note.velocity = 0;
+        }
 
         if (note.y >= canvas.height - 60 - note.height) {
           note.y = canvas.height - 60 - note.height;
@@ -239,7 +280,7 @@
 
         // spawn
         if (Math.random() < 0.01 && canSpawnObstacle()) {
-          obstacles.push({ x: canvas.width, y: canvas.height - 60, width: 44, height: 44 });
+          obstacles.push({ x: canvas.width, y: canvas.height - 60 - 44, width: 44, height: 44 });
         }
 
         if (Math.random() < 0.015) {
