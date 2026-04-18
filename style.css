@@ -6,6 +6,8 @@ body {
 .header-container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap; /* allows stacking on small screens */
   gap: 10px;
 }
 
@@ -19,6 +21,10 @@ header {
   padding: 15px;
 }
 
+.language-select {
+  margin-left: auto;
+}
+
 nav a {
   color: white;
   margin-right: 15px;
@@ -28,4 +34,48 @@ nav a {
 
 nav a:hover {
   text-decoration: underline;
+}
+
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.sidebar {
+  margin-top: 20px;
+}
+
+@media (min-width: 768px) {
+  .main-layout {
+    flex-direction: row;
+  }
+
+  .content {
+    flex: 3;
+  }
+
+  .sidebar {
+    flex: 1;
+    margin-top: 0;
+    margin-left: 20px;
+  }
+}
+
+.mission {
+  background: #f4f4f4;
+  padding: 30px;
+  text-align: center;
+}
+
+.ad {
+  background: #ddd;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
 }
