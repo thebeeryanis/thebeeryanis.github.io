@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golf Tournament - Beeryanis</title>
+  <meta name="description" content="Beeryanis Invitational Golf Tournament - Live Scores and Registration">
+  <link rel="stylesheet" href="style.css">
+   
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-NHFRYG6W55"></script>
+  
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-NHFRYG6W55');
+  </script>
+</head>
+<body>
+
+<header>
+  <div class="header-container">
+    <img src="logo.png" alt="Beeryanis Logo" class="logo">
+    <h1>Beeryanis Band</h1>
+  </div>
+  
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="links.html">Links</a>
+  </nav>
+</header>
+
+<main>
+
+  <section class="golf-hero">
+    <div class="section-content">
+      <h2>⛳ Invitational Golf Tournament</h2>
+      <p class="golf-intro">Join us for a day of golf, competition, and live music!</p>
+    </div>
+  </section>
+
+  <section class="tournament-info">
+    <div class="section-content">
+      <h3>Tournament Details</h3>
+      <div class="info-grid">
+        <div class="info-card">
+          <h4>📅 Date</h4>
+          <p>TBD - Check back soon for details!</p>
+        </div>
+        <div class="info-card">
+          <h4>📍 Location</h4>
+          <p>TBD - Announcement coming soon</p>
+        </div>
+        <div class="info-card">
+          <h4>🎵 Live Music</h4>
+          <p>Beeryanis performing throughout the day</p>
+        </div>
+        <div class="info-card">
+          <h4>💰 Entry Fee</h4>
+          <p>TBD - More info soon</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="score-entry-section">
+    <div class="section-content">
+      <h3>📊 Submit Your Score</h3>
+      <div class="score-entry-container">
+        <form id="scoreForm" class="score-form">
+          <div class="form-group">
+            <label for="playerName">Your Name (Temporary Username):</label>
+            <input type="text" id="playerName" name="playerName" required placeholder="Enter a username for the tournament">
+          </div>
+
+          <div class="form-group">
+            <label for="playerScore">Your Current Score:</label>
+            <input type="number" id="playerScore" name="playerScore" required placeholder="Enter your score">
+          </div>
+
+          <div class="form-group">
+            <label for="holes">Holes Completed:</label>
+            <select id="holes" name="holes" required>
+              <option value="">Select holes completed</option>
+              <option value="9">Front 9</option>
+              <option value="18">Full 18</option>
+            </select>
+          </div>
+
+          <button type="submit" class="cta">Submit Score</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="leaderboard-section">
+    <div class="section-content">
+      <h3>🏆 Live Leaderboard</h3>
+      <div id="leaderboardContainer" class="leaderboard-container">
+        <div class="leaderboard-table-wrapper">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Player Name</th>
+                <th>Score</th>
+                <th>Holes</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+              <tr class="empty-state">
+                <td colspan="5">No scores submitted yet. Be the first!</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <button id="refreshBtn" class="cta secondary" style="margin-top: 20px;">🔄 Refresh Scores</button>
+    </div>
+  </section>
+
+  <section class="tournament-rules">
+    <div class="section-content">
+      <h3>Tournament Rules</h3>
+      <ul class="rules-list">
+        <li>Participants can submit scores as they complete holes</li>
+        <li>Lowest score wins!</li>
+        <li>Players must enter their own scores</li>
+        <li>Score updates appear on the live leaderboard immediately</li>
+        <li>Use any temporary username you'd like</li>
+        <li>Have fun and support the band!</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>© 2026 Beeryanis</p>
+</footer>
+
+<script>
+  // Golf Tournament Score Tracking System
+  const STORAGE_KEY = 'beeryanis_golf_scores';
+  const REFRESH_INTERVAL = 3000; // Refresh leaderboard every 3 seconds
+
+  // Initialize storage if it doesn't exist
+  function initializeStorage() {
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+    }
+  }
+
+  // Get all scores from storage
+  function getAllScores() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  }
+
+  // Save a new score
+  function addScore(playerName, score, holes) {
+    const scores = getAllScores();
+    const existingIndex = scores.findIndex(s => s.playerName.toLowerCase() === playerName.toLowerCase());
+    
+    const newScore = {
+      playerName,
+      score: parseInt(score),
+      holes,
+      timestamp: new Date().toISOString()
+    };
+
+    if (existingIndex !== -1) {
+      // Update existing player's score
+      scores[existingIndex] = newScore;
+    } else {
+      // Add new player
+      scores.push(newScore);
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
+    updateLeaderboard();
+  }
+
+  // Delete a score
+  function deleteScore(playerName) {
+    let scores = getAllScores();
+    scores = scores.filter(s => s.playerName.toLowerCase() !== playerName.toLowerCase());
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
+    updateLeaderboard();
+  }
+
+  // Sort scores (lowest is best in golf)
+  function getSortedScores() {
+    const scores = getAllScores();
+    return scores.sort((a, b) => a.score - b.score);
+  }
+
+  // Update leaderboard display
+  function updateLeaderboard() {
+    const scores = getSortedScores();
+    const leaderboardBody = document.getElementById('leaderboardBody');
+
+    if (scores.length === 0) {
+      leaderboardBody.innerHTML = '<tr class="empty-state"><td colspan="5">No scores submitted yet. Be the first!</td></tr>';
+      return;
+    }
+
+    leaderboardBody.innerHTML = scores.map((score, index) => `
+      <tr class="leaderboard-row">
+        <td class="rank">${index + 1}</td>
+        <td class="player-name">${escapeHtml(score.playerName)}</td>
+        <td class="score">${score.score}</td>
+        <td class="holes">${score.holes}</td>
+        <td class="action">
+          <button class="delete-btn" onclick="deleteScoreConfirm('${escapeHtml(score.playerName)}')">Remove</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Escape HTML to prevent injection
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  // Delete score with confirmation
+  function deleteScoreConfirm(playerName) {
+    if (confirm(`Remove ${playerName}'s score?`)) {
+      deleteScore(playerName);
+    }
+  }
+
+  // Handle form submission
+  document.getElementById('scoreForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const playerName = document.getElementById('playerName').value.trim();
+    const playerScore = document.getElementById('playerScore').value.trim();
+    const holes = document.getElementById('holes').value;
+
+    if (!playerName || !playerScore || !holes) {
+      alert('Please fill out all fields');
+      return;
+    }
+
+    if (playerName.length > 30) {
+      alert('Username must be 30 characters or less');
+      return;
+    }
+
+    addScore(playerName, playerScore, holes);
+    
+    // Reset form
+    document.getElementById('scoreForm').reset();
+    document.getElementById('playerName').focus();
+    
+    // Show success message
+    alert('Score submitted! Check the leaderboard below.');
+  });
+
+  // Refresh button
+  document.getElementById('refreshBtn').addEventListener('click', () => {
+    updateLeaderboard();
+    // Visual feedback
+    const btn = document.getElementById('refreshBtn');
+    btn.style.opacity = '0.5';
+    setTimeout(() => { btn.style.opacity = '1'; }, 300);
+  });
+
+  // Auto-refresh leaderboard
+  setInterval(updateLeaderboard, REFRESH_INTERVAL);
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    initializeStorage();
+    updateLeaderboard();
+  });
+</script>
+
+</body>
+</html>
