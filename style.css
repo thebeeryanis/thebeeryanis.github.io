@@ -703,7 +703,7 @@ footer {
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 25px;
   margin-top: 30px;
 }
@@ -716,6 +716,10 @@ footer {
   text-align: left;
 }
 
+.info-card-wide {
+  grid-column: 1 / -1;
+}
+
 .info-card h4 {
   color: var(--orange-bright);
   margin: 0 0 10px 0;
@@ -726,6 +730,55 @@ footer {
   margin: 0;
   color: #d0d0d0;
   text-align: left;
+}
+
+.prize-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #d0d0d0;
+}
+
+.prize-list li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.registration-card {
+  margin: 30px auto 0;
+  max-width: 700px;
+  padding: 24px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(45, 157, 77, 0.2) 0%, rgba(255, 140, 66, 0.12) 100%);
+  border: 1px solid rgba(45, 157, 77, 0.3);
+  text-align: center;
+}
+
+.registration-card h4 {
+  margin: 0 0 10px 0;
+  color: var(--orange-bright);
+  font-size: 1.3rem;
+}
+
+.registration-card p {
+  margin: 0 0 20px 0;
+  color: #e8e8e8;
+}
+
+.registration-button {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accwnt), var(--orange-bright));
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 8px 25px rgba(45, 157, 77, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.registration-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(255, 140, 66, 0.25);
 }
 
 /* Score Entry Section */
