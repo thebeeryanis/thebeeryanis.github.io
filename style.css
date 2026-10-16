@@ -919,6 +919,7 @@ footer {
 }
 
 .rules-list li {
+  list-style: none;
   padding: 12px 0;
   padding-left: 30px;
   position: relative;
@@ -926,12 +927,16 @@ footer {
   line-height: 1.8;
 }
 
-.rules-list li:before {
+.rules-list li::before {
   content: '✓';
   position: absolute;
   left: 0;
   color: var(--accwnt);
   font-weight: 700;
+}
+
+.rules-list li::marker {
+  content: "";
 }
 
 /* Logo Modal Styles */
