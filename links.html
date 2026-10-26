@@ -48,19 +48,19 @@
       <div class="link-buttons">
         <a href="#" class="music-link spotify">
           <span class="platform-icon">🎵</span>
-          <span class="platform-name">Spotify</span>
+          <span class="platform-name">Spotify <small>(coming soon)</small></span>
         </a>
         <a href="#" class="music-link youtube">
           <span class="platform-icon">▶️</span>
-          <span class="platform-name">YouTube</span>
+          <span class="platform-name">YouTube <small>(coming soon)</small></span>
         </a>
         <a href="#" class="music-link apple">
           <span class="platform-icon">🎧</span>
-          <span class="platform-name">Apple Music</span>
+          <span class="platform-name">Apple Music <small>(coming soon)</small></span>
         </a>
         <a href="#" class="music-link deezer">
           <span class="platform-icon">🎼</span>
-          <span class="platform-name">Deezer</span>
+          <span class="platform-name">Deezer <small>(coming soon)</small></span>
         </a>
       </div>
     </div>
@@ -70,22 +70,39 @@
     <div class="section-content">
       <h3>📱 Follow Us</h3>
       <div class="link-buttons">
-        <a href="#" class="social-link instagram">
+        <a href="https://www.instagram.com/thebeeryanis/" class="social-link instagram" target="_blank" rel="noopener noreferrer">
           <span class="platform-icon">📸</span>
           <span class="platform-name">Instagram</span>
         </a>
         <a href="#" class="social-link twitter">
           <span class="platform-icon">🐦</span>
-          <span class="platform-name">Twitter</span>
+          <span class="platform-name">Twitter <small>(coming soon)</small></span>
         </a>
         <a href="#" class="social-link facebook">
           <span class="platform-icon">👥</span>
-          <span class="platform-name">Facebook</span>
+          <span class="platform-name">Facebook <small>(coming soon)</small></span>
         </a>
-        <a href="#" class="social-link tiktok">
+        <a href="https://www.tiktok.com/@beeryanis?_r=1&_t=ZP-9AsufNEx5VW" class="social-link tiktok" target="_blank" rel="noopener noreferrer">
           <span class="platform-icon">🎵</span>
           <span class="platform-name">TikTok</span>
         </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="wallet-tracker">
+    <div class="section-content">
+      <h3>Wallet & Market</h3>
+      <div class="wallet-tracker-grid">
+        <a href="https://phantom.com/tokens/solana/7bVDx8LN9Z5dpiWkAKgJfsotqAPp2uSCigookXCRpump?referralId=1t4gztha9pi" class="wallet-link" target="_blank" rel="noopener noreferrer">
+          <span class="platform-icon">🟣</span>
+          <span class="platform-name">Phantom Wallet</span>
+        </a>
+        <div class="daily-tracker" aria-live="polite">
+          <div class="tracker-label">Daily % Tracker</div>
+          <div class="tracker-value" id="daily-tracker-value">Loading...</div>
+          <div class="tracker-meta" id="daily-tracker-meta">Solana 24h change</div>
+        </div>
       </div>
     </div>
   </section>
@@ -103,6 +120,36 @@
 <footer>
   <p>© 2026 Beeryanis</p>
 </footer>
+
+<script>
+  const trackerValue = document.getElementById('daily-tracker-value');
+  const trackerMeta = document.getElementById('daily-tracker-meta');
+
+  async function updateDailyTracker() {
+    try {
+      const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=solana&price_change_percentage=24h');
+      if (!response.ok) throw new Error('Request failed');
+
+      const data = await response.json();
+      const solana = data[0];
+      const change = solana?.price_change_percentage_24h ?? 0;
+      const price = solana?.current_price ?? 0;
+      const direction = change >= 0 ? '▲ Up' : '▼ Down';
+
+      trackerValue.textContent = `${change.toFixed(2)}%`;
+      trackerValue.classList.toggle('positive', change >= 0);
+      trackerValue.classList.toggle('negative', change < 0);
+      trackerMeta.textContent = `${direction} • $${price.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+    } catch (error) {
+      trackerValue.textContent = 'Unavailable';
+      trackerValue.classList.remove('positive', 'negative');
+      trackerMeta.textContent = 'Live market feed unavailable';
+    }
+  }
+
+  updateDailyTracker();
+  setInterval(updateDailyTracker, 300000);
+</script>
 
 </body>
 </html>
